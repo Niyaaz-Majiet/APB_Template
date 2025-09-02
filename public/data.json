@@ -1,11 +1,11 @@
 {
   "applicationFunnel": [
-  { "merchants": "Jan", "Draft": 1500, "Awaiting Signature": 1200, "NPI Review": 950, "Active": 700 },
-  { "merchants": "Feb", "Draft": 1600, "Awaiting Signature": 1250, "NPI Review": 1000, "Active": 720 },
-  { "merchants": "Mar", "Draft": 1450, "Awaiting Signature": 1100, "NPI Review": 870, "Active": 690 },
-  { "merchants": "Apr", "Draft": 1550, "Awaiting Signature": 1180, "NPI Review": 930, "Active": 710 },
-  { "merchants": "May", "Draft": 1700, "Awaiting Signature": 1350, "NPI Review": 1050, "Active": 780 },
-  { "merchants": "Jun", "Draft": 1650, "Awaiting Signature": 1300, "NPI Review": 1000, "Active": 760 }
+  { "Months": "Jan", "Draft": 1500, "Awaiting Signature": 1200, "NPI Review": 950, "Active": 700 },
+  { "Months": "Feb", "Draft": 1600, "Awaiting Signature": 1250, "NPI Review": 1000, "Active": 720 },
+  { "Months": "Mar", "Draft": 1450, "Awaiting Signature": 1100, "NPI Review": 870, "Active": 690 },
+  { "Months": "Apr", "Draft": 1550, "Awaiting Signature": 1180, "NPI Review": 930, "Active": 710 },
+  { "Months": "May", "Draft": 1700, "Awaiting Signature": 1350, "NPI Review": 1050, "Active": 780 },
+  { "Months": "Jun", "Draft": 1650, "Awaiting Signature": 1300, "NPI Review": 1000, "Active": 760 }
 ],
   "signPerformance": [
     { "week": "Week 1", "avgTime": 3.2, "completionRate": 82 },
@@ -18,12 +18,12 @@
     { "week": "Week 8", "avgTime": 2.6, "completionRate": 92 }
   ],
   "merchantStatus": [
-    { "merchants": "Jan", "Active": 600, "Inactive": 150, "Suspended": 50 },
-    { "merchants": "Feb", "Active": 620, "Inactive": 160, "Suspended": 55 },
-    { "merchants": "Mar", "Active": 640, "Inactive": 170, "Suspended": 60 },
-    { "merchants": "Apr", "Active": 660, "Inactive": 165, "Suspended": 58 },
-    { "merchants": "May", "Active": 680, "Inactive": 175, "Suspended": 65 },
-    { "merchants": "Jun", "Active": 700, "Inactive": 180, "Suspended": 70 }
+    { "Months": "Jan", "Active": 600, "Inactive": 150, "Suspended": 50 },
+    { "Months": "Feb", "Active": 620, "Inactive": 160, "Suspended": 55 },
+    { "Months": "Mar", "Active": 640, "Inactive": 170, "Suspended": 60 },
+    { "Months": "Apr", "Active": 660, "Inactive": 165, "Suspended": 58 },
+    { "Months": "May", "Active": 680, "Inactive": 175, "Suspended": 65 },
+    { "Months": "Jun", "Active": 700, "Inactive": 180, "Suspended": 70 }
   ]
 }
 
