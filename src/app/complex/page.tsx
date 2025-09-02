@@ -1,0 +1,263 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Box,
+  Typography,
+  ToggleButton,
+  ToggleButtonGroup,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
+import { BarChart } from "@mui/x-charts/BarChart";
+import { LineChart } from "@mui/x-charts/LineChart";
+import { PieChart } from "@mui/x-charts/PieChart";
+//import { AreaChart } from "@mui/x-charts/AreaChart";
+import dataSet from "../../../public/data.json"; // 👈 JSON file
+
+export default function Complex() {
+   const [data,setData]=useState(dataSet);
+  const [view, setView] = useState<"funnel" | "sign" | "status">("funnel");
+  const [statusView, setStatusView] = useState<"pie" | "area">("pie");
+  const [showTable, setShowTable] = useState(true);
+  const [monthRange, setMonthRange] = useState("all");
+
+  const handleViewChange = (_: any, newView: "funnel" | "sign" | "status") => {
+    if (newView) {
+      console.log("Switched view to:", newView);
+      setView(newView);
+    }
+  };
+
+
+   if (!data) {
+    return <div>Loading chart data...</div>;
+  }
+
+  // Sample datasets
+  const funnelData = data?.applicationFunnel;
+  const signPerformance = data?.signPerformance;
+  const merchantStatus = data?.merchantStatus;
+
+  // Month ranges
+  const ranges: Record<string, string[]> = {
+    all: [],
+    "Q1 (Jan–Mar)": ["Jan", "Feb", "Mar"],
+    "Q2 (Apr–Jun)": ["Apr", "May", "Jun"],
+  };
+
+  // Filter function
+  const filterByRange = <T extends { merchants?: string }>(dataset: T[]): T[] => {
+    if (monthRange === "all") return dataset;
+    const selected = ranges[monthRange];
+    return dataset.filter((row) => row.merchants && selected.includes(row.merchants));
+  };
+
+  const filteredFunnel = filterByRange(funnelData);
+  const filteredStatus = filterByRange(merchantStatus);
+
+  return (
+    <Box sx={{ p: 4, bgcolor: "black", minHeight: "100vh", color: "white" }}>
+      <Typography variant="h4" gutterBottom sx={{ color: "#39FF14" }}>
+        🚀 Merchant Lifecycle Dashboard
+      </Typography>
+
+      {/* Month Filter */}
+      {(view === "funnel" || view === "status") && (
+        <FormControl sx={{ mb: 3, minWidth: 200 }}>
+          <InputLabel sx={{ color: "white" }}>Month Range</InputLabel>
+          <Select
+            value={monthRange}
+            onChange={(e) => {
+              console.log("Changed month range:", e.target.value);
+              setMonthRange(e.target.value);
+            }}
+            sx={{
+              color: "white",
+              ".MuiSvgIcon-root": { color: "#39FF14" },
+              ".MuiOutlinedInput-notchedOutline": { borderColor: "#39FF14" },
+            }}
+          >
+            {Object.keys(ranges).map((label) => (
+              <MenuItem key={label} value={label}>
+                {label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+
+      {/* Main View Toggle */}
+      <ToggleButtonGroup
+        value={view}
+        exclusive
+        onChange={handleViewChange}
+        sx={{ mb: 3 }}
+      >
+        <ToggleButton value="funnel">Application Funnel</ToggleButton>
+        <ToggleButton value="sign">Adobe Sign Performance</ToggleButton>
+        <ToggleButton value="status">Merchant Status</ToggleButton>
+      </ToggleButtonGroup>
+
+      {/* Chart Section */}
+      <Paper sx={{ p: 3, mb: 3, bgcolor: "grey.900" }}>
+        {view === "funnel" && (
+          <BarChart
+            dataset={filteredFunnel}
+            xAxis={[{ scaleType: "band", dataKey: "month" }]}
+            series={[
+              { dataKey: "Draft", label: "Draft", color: "grey" },
+              { dataKey: "Awaiting Signature", label: "Awaiting Signature", color: "#39FF14" },
+              { dataKey: "NPI Review", label: "NPI Review", color: "white" },
+              { dataKey: "Active", label: "Active", color: "#00bfff" }
+            ]}
+            height={350}
+            layout="vertical"
+          />
+        )}
+
+        {view === "sign" && (
+          <LineChart
+            dataset={signPerformance}
+            xAxis={[{ dataKey: "week" }]}
+            series={[
+              {
+                dataKey: "avgTime",
+                label: "Avg Time (days)",
+                color: "#39FF14",
+                yAxisKey: "leftAxis",
+              },
+              {
+                dataKey: "completionRate",
+                label: "Completion Rate (%)",
+                color: "white",
+                yAxisKey: "rightAxis",
+              },
+            ]}
+            yAxis={[
+              { id: "leftAxis", label: "Days", min: 0, max: 5 },
+              { id: "rightAxis", label: "%", min: 70, max: 100 },
+            ]}
+            height={350}
+          />
+        )}
+
+        {view === "status" && (
+          <>
+            {/* Toggle Pie vs Area */}
+            <ToggleButtonGroup
+              value={statusView}
+              exclusive
+              onChange={(_, newView) => {
+                if (newView) {
+                  console.log("Switched status view to:", newView);
+                  setStatusView(newView);
+                }
+              }}
+              sx={{ mb: 2 }}
+            >
+              <ToggleButton value="pie">Pie (Latest Month)</ToggleButton>
+              <ToggleButton value="area">Area (Trend)</ToggleButton>
+            </ToggleButtonGroup>
+
+            {statusView === "pie" ? (
+              <PieChart
+                series={[
+                  {
+                    data: Object.entries(
+                      filteredStatus[filteredStatus.length - 1]
+                    )
+                      .filter(([key]) => key !== "month")
+                      .map(([status, value], i) => ({
+                        id: i,
+                        value: value as number,
+                        label: status,
+                        color:
+                          status === "Active"
+                            ? "#39FF14"
+                            : status === "Inactive"
+                            ? "grey"
+                            : "red",
+                      })),
+                  },
+                ]}
+                height={350}
+              />
+            ) : (
+                <div>Hello</div>
+            //   <AreaChart
+            //     dataset={filteredStatus}
+            //     xAxis={[{ dataKey: "month" }]}
+            //     series={[
+            //       { dataKey: "Active", label: "Active", color: "#39FF14" },
+            //       { dataKey: "Inactive", label: "Inactive", color: "grey" },
+            //       { dataKey: "Suspended", label: "Suspended", color: "red" },
+            //     ]}
+            //     height={350}
+            //   />
+            )}
+          </>
+        )}
+      </Paper>
+
+      {/* Table Toggle */}
+      <ToggleButtonGroup
+        value={showTable ? "table" : "no-table"}
+        exclusive
+        onChange={() => setShowTable(!showTable)}
+        sx={{ mb: 2 }}
+      >
+        <ToggleButton value="table">Show Table</ToggleButton>
+        <ToggleButton value="no-table">Hide Table</ToggleButton>
+      </ToggleButtonGroup>
+
+      {showTable && (
+        <TableContainer component={Paper} sx={{ bgcolor: "grey.900" }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                {Object.keys(
+                  view === "funnel"
+                    ? filteredFunnel[0]
+                    : view === "sign"
+                    ? signPerformance[0]
+                    : filteredStatus[0]
+                ).map((key) => (
+                  <TableCell key={key} sx={{ color: "#39FF14" }}>
+                    {key}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {(view === "funnel"
+                ? filteredFunnel
+                : view === "sign"
+                ? signPerformance
+                : filteredStatus
+              ).map((row, idx) => (
+                <TableRow key={idx}>
+                  {Object.values(row).map((val, i) => (
+                    <TableCell key={i} sx={{ color: "white" }}>
+                      {val}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </Box>
+  );
+}
+ 
