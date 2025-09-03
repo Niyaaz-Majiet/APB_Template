@@ -25,7 +25,7 @@ import { PieChart } from "@mui/x-charts/PieChart";
 import dataSet from "../../../public/data.json"; // 👈 JSON file
 
 export default function Complex() {
-   const [data,setData]=useState(dataSet);
+  const [data, setData] = useState(dataSet);
   const [view, setView] = useState<"funnel" | "sign" | "status">("funnel");
   const [statusView, setStatusView] = useState<"pie" | "area">("pie");
   const [showTable, setShowTable] = useState(true);
@@ -38,8 +38,7 @@ export default function Complex() {
     }
   };
 
-
-   if (!data) {
+  if (!data) {
     return <div>Loading chart data...</div>;
   }
 
@@ -56,17 +55,21 @@ export default function Complex() {
   };
 
   // Filter function
-  const filterByRange = <T extends { merchants?: string }>(dataset: T[]): T[] => {
+  const filterByRange = <T extends { merchants?: string }>(
+    dataset: T[]
+  ): T[] => {
     if (monthRange === "all") return dataset;
     const selected = ranges[monthRange];
-    return dataset.filter((row) => row.merchants && selected.includes(row.merchants));
+    return dataset.filter(
+      (row) => row.merchants && selected.includes(row.merchants)
+    );
   };
 
   const filteredFunnel = filterByRange(funnelData);
   const filteredStatus = filterByRange(merchantStatus);
 
   return (
-    <Box sx={{ p: 4, bgcolor: "black", minHeight: "100vh", color: "white" }}>
+    <Box sx={{ p: 4, minHeight: "100vh", color: "white" }}>
       <Typography variant="h4" gutterBottom sx={{ color: "#39FF14" }}>
         🚀 Merchant Lifecycle Dashboard
       </Typography>
@@ -109,16 +112,20 @@ export default function Complex() {
       </ToggleButtonGroup>
 
       {/* Chart Section */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: "grey.900" }}>
+      <Paper sx={{ p: 3, mb: 3 }}>
         {view === "funnel" && (
           <BarChart
             dataset={filteredFunnel}
             xAxis={[{ scaleType: "band", dataKey: "month" }]}
             series={[
               { dataKey: "Draft", label: "Draft", color: "grey" },
-              { dataKey: "Awaiting Signature", label: "Awaiting Signature", color: "#39FF14" },
+              {
+                dataKey: "Awaiting Signature",
+                label: "Awaiting Signature",
+                color: "#39FF14",
+              },
               { dataKey: "NPI Review", label: "NPI Review", color: "white" },
-              { dataKey: "Active", label: "Active", color: "#00bfff" }
+              { dataKey: "Active", label: "Active", color: "#00bfff" },
             ]}
             height={350}
             layout="vertical"
@@ -193,17 +200,17 @@ export default function Complex() {
                 height={350}
               />
             ) : (
-                <div>Hello</div>
-            //   <AreaChart
-            //     dataset={filteredStatus}
-            //     xAxis={[{ dataKey: "month" }]}
-            //     series={[
-            //       { dataKey: "Active", label: "Active", color: "#39FF14" },
-            //       { dataKey: "Inactive", label: "Inactive", color: "grey" },
-            //       { dataKey: "Suspended", label: "Suspended", color: "red" },
-            //     ]}
-            //     height={350}
-            //   />
+              <div>Hello</div>
+              //   <AreaChart
+              //     dataset={filteredStatus}
+              //     xAxis={[{ dataKey: "month" }]}
+              //     series={[
+              //       { dataKey: "Active", label: "Active", color: "#39FF14" },
+              //       { dataKey: "Inactive", label: "Inactive", color: "grey" },
+              //       { dataKey: "Suspended", label: "Suspended", color: "red" },
+              //     ]}
+              //     height={350}
+              //   />
             )}
           </>
         )}
@@ -260,4 +267,3 @@ export default function Complex() {
     </Box>
   );
 }
- 
