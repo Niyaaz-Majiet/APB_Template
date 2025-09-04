@@ -37,7 +37,7 @@ export default function Complex() {
   const [view, setView] = useState<"funnel" | "sign" | "status">("funnel");
   const [statusView, setStatusView] = useState<"pie" | "area">("pie");
   const [showTable, setShowTable] = useState(true);
-  const [monthRange, setMonthRange] = useState("all");
+  const [monthRange, setMonthRange] = useState("All");
 
   const handleViewChange = (_: any, newView: "funnel" | "sign" | "status") => {
     if (newView) {
@@ -45,7 +45,12 @@ export default function Complex() {
     }
   };
 
-  if (!data || !data.applicationFunnel || !data.signPerformance || !data.merchantStatus) {
+  if (
+    !data ||
+    !data.applicationFunnel ||
+    !data.signPerformance ||
+    !data.merchantStatus
+  ) {
     return <div>Loading chart data...</div>;
   }
 
@@ -56,16 +61,16 @@ export default function Complex() {
 
   // Month ranges
   const ranges: Record<string, string[]> = {
-    all: [],
-    "Q1 (Jan–Mar)": ["Jan", "Feb", "Mar"],
-    "Q2 (Apr–Jun)": ["Apr", "May", "Jun"],
+    All: [],
+    "Q1 (Jan-Mar)": ["Jan", "Feb", "Mar"],
+    "Q2 (Apr-Jun)": ["Apr", "May", "Jun"],
   };
 
   // Filter function
   const filterByRange = <T extends { merchants?: string }>(
-    dataset: T[],
+    dataset: T[]
   ): T[] => {
-    if (monthRange === "all") return dataset;
+    if (monthRange === "All") return dataset;
     const selected = ranges[monthRange];
     return dataset.filter(
       (row) => row.merchants && selected.includes(row.merchants)
@@ -77,19 +82,22 @@ export default function Complex() {
 
   return (
     <Box sx={{ p: 4, minHeight: "100vh", color: "white" }}>
-      <Typography variant="h4" gutterBottom sx={{ color: "#39FF14" }}>
-        🚀 Merchant Lifecycle Dashboard
+      <Typography variant="h4" gutterBottom mb={5} sx={{ color: "#39FF14" }}>
+        Merchant Lifecycle Dashboard
       </Typography>
 
       {/* Month Filter */}
       {(view === "funnel" || view === "status") && (
-        <FormControl sx={{ mb: 3, minWidth: 200 }}>
-          <InputLabel sx={{ color: "white" }}>Month Range</InputLabel>
+        <FormControl sx={{ mb: 3, mr: 2, minWidth: 200 }}>
+          <InputLabel id="simple-select-label">Month Range</InputLabel>
+
           <Select
             value={monthRange}
             onChange={(e) => {
               setMonthRange(e.target.value);
             }}
+            label="Month Range"
+            labelId="simple-select-label"
             sx={{
               color: "black",
               ".MuiSvgIcon-root": { color: "#39FF14" },
@@ -211,55 +219,55 @@ export default function Complex() {
                 height={350}
               />
             ) : (
-                <LineChart
-                  height={300}
-                  series={[
-                    {
-                      data: filteredStatus.map((d) => d.Active),
-                      label: "Active",
-                      area: true,
-                      stack: "total",
-                      showMark: false,
-                    },
-                    {
-                      data: filteredStatus.map((d) => d.Inactive),
-                      label: "Inactive",
-                      area: true,
-                      stack: "total",
-                      showMark: false,
-                    },
-                    {
-                      data: filteredStatus.map((d) => d.Suspended),
-                      label: "Suspended",
-                      area: true,
-                      stack: "total",
-                      showMark: false,
-                    },
-                  ]}
-                  xAxis={[
-                    {
-                      scaleType: "point",
-                      data: filteredStatus.map((d) => d.merchants),
-                    },
-                  ]}
-                  yAxis={[
-                    {
-                      width: 50,
-                      label: "Number of Merchants",
-                    },
-                  ]}
-                  sx={{
-                    [`& .${lineElementClasses.root}`]: {
-                      display: "none",
-                    },
-                  }}
-                  margin={0}
-                >
-                  <LineHighlightPlot />
-                  <ChartsAxisHighlight x="line" />
-                  <ChartsTooltip trigger="axis" />
-                  <ChartsLegend />
-                </LineChart>
+              <LineChart
+                height={300}
+                series={[
+                  {
+                    data: filteredStatus.map((d) => d.Active),
+                    label: "Active",
+                    area: true,
+                    stack: "total",
+                    showMark: false,
+                  },
+                  {
+                    data: filteredStatus.map((d) => d.Inactive),
+                    label: "Inactive",
+                    area: true,
+                    stack: "total",
+                    showMark: false,
+                  },
+                  {
+                    data: filteredStatus.map((d) => d.Suspended),
+                    label: "Suspended",
+                    area: true,
+                    stack: "total",
+                    showMark: false,
+                  },
+                ]}
+                xAxis={[
+                  {
+                    scaleType: "point",
+                    data: filteredStatus.map((d) => d.merchants),
+                  },
+                ]}
+                yAxis={[
+                  {
+                    width: 50,
+                    label: "Number of Merchants",
+                  },
+                ]}
+                sx={{
+                  [`& .${lineElementClasses.root}`]: {
+                    display: "none",
+                  },
+                }}
+                margin={0}
+              >
+                <LineHighlightPlot />
+                <ChartsAxisHighlight x="line" />
+                <ChartsTooltip trigger="axis" />
+                <ChartsLegend />
+              </LineChart>
             )}
           </>
         )}
@@ -277,7 +285,7 @@ export default function Complex() {
       </ToggleButtonGroup>
 
       {showTable && (
-        <TableContainer component={Paper} sx={{ bgcolor: "grey.900" }}>
+        <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
@@ -288,9 +296,7 @@ export default function Complex() {
                     ? signPerformance[0]
                     : filteredStatus[0]
                 ).map((key) => (
-                  <TableCell key={key} sx={{ color: "#39FF14" }}>
-                    {key}
-                  </TableCell>
+                  <TableCell key={key}>{key}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
@@ -303,9 +309,7 @@ export default function Complex() {
               ).map((row, idx) => (
                 <TableRow key={idx}>
                   {Object.values(row).map((val, i) => (
-                    <TableCell key={i} sx={{ color: "white" }}>
-                      {val}
-                    </TableCell>
+                    <TableCell key={i}>{val}</TableCell>
                   ))}
                 </TableRow>
               ))}
