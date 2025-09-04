@@ -2,14 +2,26 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Typography, ToggleButton, ToggleButtonGroup, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import {
+  Box,
+  Typography,
+  ToggleButton,
+  ToggleButtonGroup,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { PieChart } from "@mui/x-charts/PieChart";
 import dataSet from "../../public/data.json"; // 👈 JSON file
 
 export default function home() {
-  const [data,setData]=useState(dataSet);
+  const [data, setData] = useState(dataSet);
   const [view, setView] = useState<"bar" | "line" | "pie">("bar");
   const [showTable, setShowTable] = useState(true);
 
@@ -25,12 +37,12 @@ export default function home() {
   const signPerformance = data?.signPerformance;
   const merchantStatus = data?.merchantStatus;
 
-   if (!data) {
+  if (!data) {
     return <div>Loading chart data...</div>;
   }
 
   return (
-    <Box sx={{ p: 4, bgcolor: "black", minHeight: "100vh", color: "white" }}>
+    <Box sx={{ p: 4, minHeight: "100vh", color: "white" }}>
       <Typography variant="h4" gutterBottom sx={{ color: "#39FF14" }}>
         🚀 Merchant Lifecycle Dashboard
       </Typography>
@@ -48,7 +60,7 @@ export default function home() {
       </ToggleButtonGroup>
 
       {/* Chart Display */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: "grey.900" }}>
+      <Paper sx={{ p: 3, mb: 3 }}>
         {view === "bar" && (
           <BarChart
             xAxis={[{ scaleType: "band", dataKey: "Months" }]}
@@ -65,7 +77,13 @@ export default function home() {
         {view === "line" && (
           <LineChart
             xAxis={[{ dataKey: "week" }]}
-            series={[{ dataKey: "avgTime", label: "Avg Time (days)", color: "#39FF14" }]}
+            series={[
+              {
+                dataKey: "avgTime",
+                label: "Avg Time (days)",
+                color: "#39FF14",
+              },
+            ]}
             dataset={signPerformance}
             height={300}
           />
@@ -78,7 +96,12 @@ export default function home() {
                   id: i,
                   value: item.value,
                   label: item.status,
-                  color: item.status === "Active" ? "#39FF14" : item.status === "Inactive" ? "grey" : "red",
+                  color:
+                    item.status === "Active"
+                      ? "#39FF14"
+                      : item.status === "Inactive"
+                      ? "grey"
+                      : "red",
                 })),
               },
             ]}
@@ -99,7 +122,7 @@ export default function home() {
       </ToggleButtonGroup>
 
       {showTable && (
-        <TableContainer component={Paper} sx={{ bgcolor: "grey.900" }}>
+        <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
@@ -117,17 +140,20 @@ export default function home() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(view === "bar" ? funnelData : view === "line" ? signPerformance : merchantStatus).map(
-                (row, idx) => (
-                  <TableRow key={idx}>
-                    {Object.values(row).map((val, i) => (
-                      <TableCell key={i} sx={{ color: "white" }}>
-                        {val}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                )
-              )}
+              {(view === "bar"
+                ? funnelData
+                : view === "line"
+                ? signPerformance
+                : merchantStatus
+              ).map((row, idx) => (
+                <TableRow key={idx}>
+                  {Object.values(row).map((val, i) => (
+                    <TableCell key={i} sx={{ color: "white" }}>
+                      {val}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
@@ -135,4 +161,3 @@ export default function home() {
     </Box>
   );
 }
- 

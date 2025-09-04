@@ -18,14 +18,22 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import {
+  ChartsTooltip,
+  ChartsLegend,
+  ChartsAxisHighlight,
+} from "@mui/x-charts";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { LineChart } from "@mui/x-charts/LineChart";
+import {
+  LineChart,
+  lineElementClasses,
+  LineHighlightPlot,
+} from "@mui/x-charts/LineChart";
 import { PieChart } from "@mui/x-charts/PieChart";
-//import { AreaChart } from "@mui/x-charts/AreaChart";
 import dataSet from "../../../public/data.json"; // 👈 JSON file
 
 export default function Complex() {
-   const [data,setData]=useState(dataSet);
+  const [data, setData] = useState(dataSet);
   const [view, setView] = useState<"funnel" | "sign" | "status">("funnel");
   const [statusView, setStatusView] = useState<"pie" | "area">("pie");
   const [showTable, setShowTable] = useState(true);
@@ -33,13 +41,11 @@ export default function Complex() {
 
   const handleViewChange = (_: any, newView: "funnel" | "sign" | "status") => {
     if (newView) {
-      console.log("Switched view to:", newView);
       setView(newView);
     }
   };
 
-
-   if (!data) {
+  if (!data || !data.applicationFunnel || !data.signPerformance || !data.merchantStatus) {
     return <div>Loading chart data...</div>;
   }
 
@@ -56,17 +62,21 @@ export default function Complex() {
   };
 
   // Filter function
-  const filterByRange = <T extends { merchants?: string }>(dataset: T[]): T[] => {
+  const filterByRange = <T extends { merchants?: string }>(
+    dataset: T[],
+  ): T[] => {
     if (monthRange === "all") return dataset;
     const selected = ranges[monthRange];
-    return dataset.filter((row) => row.merchants && selected.includes(row.merchants));
+    return dataset.filter(
+      (row) => row.merchants && selected.includes(row.merchants)
+    );
   };
 
   const filteredFunnel = filterByRange(funnelData);
   const filteredStatus = filterByRange(merchantStatus);
 
   return (
-    <Box sx={{ p: 4, bgcolor: "black", minHeight: "100vh", color: "white" }}>
+    <Box sx={{ p: 4, minHeight: "100vh", color: "white" }}>
       <Typography variant="h4" gutterBottom sx={{ color: "#39FF14" }}>
         🚀 Merchant Lifecycle Dashboard
       </Typography>
@@ -78,11 +88,10 @@ export default function Complex() {
           <Select
             value={monthRange}
             onChange={(e) => {
-              console.log("Changed month range:", e.target.value);
               setMonthRange(e.target.value);
             }}
             sx={{
-              color: "white",
+              color: "black",
               ".MuiSvgIcon-root": { color: "#39FF14" },
               ".MuiOutlinedInput-notchedOutline": { borderColor: "#39FF14" },
             }}
@@ -109,16 +118,20 @@ export default function Complex() {
       </ToggleButtonGroup>
 
       {/* Chart Section */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: "grey.900" }}>
+      <Paper sx={{ p: 3, mb: 3 }}>
         {view === "funnel" && (
           <BarChart
             dataset={filteredFunnel}
-            xAxis={[{ scaleType: "band", dataKey: "month" }]}
+            xAxis={[{ scaleType: "band", dataKey: "merchants" }]}
             series={[
               { dataKey: "Draft", label: "Draft", color: "grey" },
-              { dataKey: "Awaiting Signature", label: "Awaiting Signature", color: "#39FF14" },
-              { dataKey: "NPI Review", label: "NPI Review", color: "white" },
-              { dataKey: "Active", label: "Active", color: "#00bfff" }
+              {
+                dataKey: "Awaiting Signature",
+                label: "Awaiting Signature",
+                color: "#39FF14",
+              },
+              { dataKey: "NPI Review", label: "NPI Review", color: "red" },
+              { dataKey: "Active", label: "Active", color: "#00bfff" },
             ]}
             height={350}
             layout="vertical"
@@ -127,28 +140,34 @@ export default function Complex() {
 
         {view === "sign" && (
           <LineChart
-            dataset={signPerformance}
-            xAxis={[{ dataKey: "week" }]}
+            height={500}
             series={[
               {
-                dataKey: "avgTime",
-                label: "Avg Time (days)",
-                color: "#39FF14",
-                yAxisKey: "leftAxis",
+                data: [0, 43, 100, 23, 21, 33],
+                label: "Completion Rate",
               },
+            ]}
+            xAxis={[
               {
-                dataKey: "completionRate",
-                label: "Completion Rate (%)",
-                color: "white",
-                yAxisKey: "rightAxis",
+                scaleType: "point",
+                data: [
+                  "week 1",
+                  "week 2",
+                  "week 3",
+                  "week 4",
+                  "week 5",
+                  "week 6",
+                ],
               },
             ]}
             yAxis={[
-              { id: "leftAxis", label: "Days", min: 0, max: 5 },
-              { id: "rightAxis", label: "%", min: 70, max: 100 },
+              {
+                id: "completionRate",
+                tickInterval: [0, 25, 50, 75, 100],
+                label: "Completion rate",
+              },
             ]}
-            height={350}
-          />
+          ></LineChart>
         )}
 
         {view === "status" && (
@@ -159,7 +178,6 @@ export default function Complex() {
               exclusive
               onChange={(_, newView) => {
                 if (newView) {
-                  console.log("Switched status view to:", newView);
                   setStatusView(newView);
                 }
               }}
@@ -176,7 +194,7 @@ export default function Complex() {
                     data: Object.entries(
                       filteredStatus[filteredStatus.length - 1]
                     )
-                      .filter(([key]) => key !== "month")
+                      .filter(([key]) => key !== "merchants")
                       .map(([status, value], i) => ({
                         id: i,
                         value: value as number,
@@ -193,17 +211,55 @@ export default function Complex() {
                 height={350}
               />
             ) : (
-                <div>Hello</div>
-            //   <AreaChart
-            //     dataset={filteredStatus}
-            //     xAxis={[{ dataKey: "month" }]}
-            //     series={[
-            //       { dataKey: "Active", label: "Active", color: "#39FF14" },
-            //       { dataKey: "Inactive", label: "Inactive", color: "grey" },
-            //       { dataKey: "Suspended", label: "Suspended", color: "red" },
-            //     ]}
-            //     height={350}
-            //   />
+                <LineChart
+                  height={300}
+                  series={[
+                    {
+                      data: filteredStatus.map((d) => d.Active),
+                      label: "Active",
+                      area: true,
+                      stack: "total",
+                      showMark: false,
+                    },
+                    {
+                      data: filteredStatus.map((d) => d.Inactive),
+                      label: "Inactive",
+                      area: true,
+                      stack: "total",
+                      showMark: false,
+                    },
+                    {
+                      data: filteredStatus.map((d) => d.Suspended),
+                      label: "Suspended",
+                      area: true,
+                      stack: "total",
+                      showMark: false,
+                    },
+                  ]}
+                  xAxis={[
+                    {
+                      scaleType: "point",
+                      data: filteredStatus.map((d) => d.merchants),
+                    },
+                  ]}
+                  yAxis={[
+                    {
+                      width: 50,
+                      label: "Number of Merchants",
+                    },
+                  ]}
+                  sx={{
+                    [`& .${lineElementClasses.root}`]: {
+                      display: "none",
+                    },
+                  }}
+                  margin={0}
+                >
+                  <LineHighlightPlot />
+                  <ChartsAxisHighlight x="line" />
+                  <ChartsTooltip trigger="axis" />
+                  <ChartsLegend />
+                </LineChart>
             )}
           </>
         )}
@@ -260,4 +316,3 @@ export default function Complex() {
     </Box>
   );
 }
- 
