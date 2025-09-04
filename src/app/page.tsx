@@ -257,7 +257,6 @@ export default function Complex() {
                     display: "none",
                   },
                 }}
-                margin={0}
               >
                 <LineHighlightPlot />
                 <ChartsAxisHighlight x="line" />
