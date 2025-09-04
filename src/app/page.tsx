@@ -122,7 +122,7 @@ export default function Complex() {
       </ToggleButtonGroup>
 
       {/* Chart Section */}
-      <Paper sx={{ p: 3, mb: 3,border: "1px solid #39FF14" }}>
+      <Paper sx={{ p: 3, mb: 3, border: "1px solid #39FF14" }}>
         {view === "funnel" && (
           <BarChart
             dataset={filteredFunnel}
@@ -148,7 +148,7 @@ export default function Complex() {
             series={[
               {
                 data: [0, 43, 100, 23, 21, 33],
-                label: "Completion Rate",
+                label: "Completion Rate (%)",
               },
             ]}
             xAxis={[
@@ -168,7 +168,7 @@ export default function Complex() {
               {
                 id: "completionRate",
                 tickInterval: [0, 25, 50, 75, 100],
-                label: "Completion rate",
+                label: "Completion rate (%)",
               },
             ]}
           ></LineChart>
@@ -280,7 +280,10 @@ export default function Complex() {
       </ToggleButtonGroup>
 
       {showTable && (
-        <TableContainer component={Paper} sx={{ mb: 5,border: "1px solid #39FF14" }}>
+        <TableContainer
+          component={Paper}
+          sx={{ mb: 5, border: "1px solid #39FF14" }}
+        >
           <Table>
             <TableHead>
               <TableRow>
