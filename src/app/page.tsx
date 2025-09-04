@@ -78,7 +78,7 @@ export default function Complex() {
 
   return (
     <Box sx={{ p: 4, minHeight: "100vh", color: "white" }}>
-      <Typography variant="h4" gutterBottom mb={5} sx={{ color: "#39FF14" }}>
+      <Typography variant="h4" gutterBottom mb={5} sx={{ color: "#000" }}>
         Merchant Lifecycle Dashboard
       </Typography>
 
@@ -122,7 +122,7 @@ export default function Complex() {
       </ToggleButtonGroup>
 
       {/* Chart Section */}
-      <Paper sx={{ p: 3, mb: 3 }}>
+      <Paper sx={{ p: 3, mb: 3,border: "1px solid #39FF14" }}>
         {view === "funnel" && (
           <BarChart
             dataset={filteredFunnel}
@@ -280,7 +280,7 @@ export default function Complex() {
       </ToggleButtonGroup>
 
       {showTable && (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ mb: 5,border: "1px solid #39FF14" }}>
           <Table>
             <TableHead>
               <TableRow>
