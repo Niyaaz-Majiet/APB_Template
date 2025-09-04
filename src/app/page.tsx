@@ -1,4 +1,3 @@
-// app/page.tsx (Next.js 13+ with App Router)
 "use client";
 
 import { useState } from "react";
@@ -14,103 +13,263 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
+import {
+  ChartsTooltip,
+  ChartsLegend,
+  ChartsAxisHighlight,
+} from "@mui/x-charts";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { LineChart } from "@mui/x-charts/LineChart";
+import {
+  LineChart,
+  lineElementClasses,
+  LineHighlightPlot,
+} from "@mui/x-charts/LineChart";
 import { PieChart } from "@mui/x-charts/PieChart";
 import dataSet from "../../public/data.json"; // 👈 JSON file
 
-export default function home() {
+export default function Complex() {
   const [data, setData] = useState(dataSet);
-  const [view, setView] = useState<"bar" | "line" | "pie">("bar");
+  const [view, setView] = useState<"funnel" | "sign" | "status">("funnel");
+  const [statusView, setStatusView] = useState<"pie" | "area">("pie");
   const [showTable, setShowTable] = useState(true);
+  const [monthRange, setMonthRange] = useState("All");
 
-  const handleViewChange = (_: any, newView: "bar" | "line" | "pie") => {
+  const handleViewChange = (_: any, newView: "funnel" | "sign" | "status") => {
     if (newView) {
-      console.log("Switched view to:", newView);
       setView(newView);
     }
   };
 
-  // Sample datasets from JSON
+  if (
+    !data ||
+    !data.applicationFunnel ||
+    !data.signPerformance ||
+    !data.merchantStatus
+  ) {
+    return <div>Loading chart data...</div>;
+  }
+
+  // Sample datasets
   const funnelData = data?.applicationFunnel;
   const signPerformance = data?.signPerformance;
   const merchantStatus = data?.merchantStatus;
 
-  if (!data) {
-    return <div>Loading chart data...</div>;
-  }
+  // Month ranges
+  const ranges: Record<string, string[]> = {
+    All: [],
+    "Q1 (Jan-Mar)": ["Jan", "Feb", "Mar"],
+    "Q2 (Apr-Jun)": ["Apr", "May", "Jun"],
+  };
+
+  // Filter function
+  const filterByRange = <T extends { Months?: string }>(dataset: T[]): T[] => {
+    if (monthRange === "All") return dataset;
+    const selected = ranges[monthRange];
+    return dataset.filter((row) => row.Months && selected.includes(row.Months));
+  };
+
+  const filteredFunnel = filterByRange(funnelData);
+  const filteredStatus = filterByRange(merchantStatus);
 
   return (
     <Box sx={{ p: 4, minHeight: "100vh", color: "white" }}>
-      <Typography variant="h4" gutterBottom sx={{ color: "#39FF14" }}>
-        🚀 Merchant Lifecycle Dashboard
+      <Typography variant="h4" gutterBottom mb={5} sx={{ color: "#39FF14" }}>
+        Merchant Lifecycle Dashboard
       </Typography>
 
-      {/* Toggle chart view */}
+      {/* Month Filter */}
+      {(view === "funnel" || view === "status") && (
+        <FormControl sx={{ mb: 3, mr: 2, minWidth: 200 }}>
+          <InputLabel id="simple-select-label">Month Range</InputLabel>
+
+          <Select
+            value={monthRange}
+            onChange={(e) => {
+              setMonthRange(e.target.value);
+            }}
+            label="Month Range"
+            labelId="simple-select-label"
+            sx={{
+              color: "black",
+              ".MuiSvgIcon-root": { color: "#39FF14" },
+              ".MuiOutlinedInput-notchedOutline": { borderColor: "#39FF14" },
+            }}
+          >
+            {Object.keys(ranges).map((label) => (
+              <MenuItem key={label} value={label}>
+                {label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+
+      {/* Main View Toggle */}
       <ToggleButtonGroup
         value={view}
         exclusive
         onChange={handleViewChange}
         sx={{ mb: 3 }}
       >
-        <ToggleButton value="bar">Application Funnel</ToggleButton>
-        <ToggleButton value="line">Adobe Sign Performance</ToggleButton>
-        <ToggleButton value="pie">Merchant Status</ToggleButton>
+        <ToggleButton value="funnel">Application Funnel</ToggleButton>
+        <ToggleButton value="sign">Adobe Sign Performance</ToggleButton>
+        <ToggleButton value="status">Merchant Status</ToggleButton>
       </ToggleButtonGroup>
 
-      {/* Chart Display */}
+      {/* Chart Section */}
       <Paper sx={{ p: 3, mb: 3 }}>
-        {view === "bar" && (
+        {view === "funnel" && (
           <BarChart
+            dataset={filteredFunnel}
             xAxis={[{ scaleType: "band", dataKey: "Months" }]}
             series={[
-                  { dataKey: "Draft", label: "Draft" },
-                  { dataKey: "Awaiting Signature", label: "Awaiting Signature" },
-                  { dataKey: "NPI Review", label: "NPI Review" },
-                  { dataKey: "Active", label: "Active" },
-                ]}
-            dataset={funnelData}
-            height={300}
-          />
-        )}
-        {view === "line" && (
-          <LineChart
-            xAxis={[{ dataKey: "week" }]}
-            series={[
+              { dataKey: "Draft", label: "Draft", color: "grey" },
               {
-                dataKey: "avgTime",
-                label: "Avg Time (days)",
+                dataKey: "Awaiting Signature",
+                label: "Awaiting Signature",
                 color: "#39FF14",
               },
+              { dataKey: "NPI Review", label: "NPI Review", color: "red" },
+              { dataKey: "Active", label: "Active", color: "#00bfff" },
             ]}
-            dataset={signPerformance}
-            height={300}
+            height={350}
+            layout="vertical"
           />
         )}
-        {view === "pie" && (
-          <PieChart
+
+        {view === "sign" && (
+          <LineChart
+            height={500}
             series={[
               {
-                data: merchantStatus.map((item, i) => ({
-                  id: i,
-                  value: item.value,
-                  label: item.status,
-                  color:
-                    item.status === "Active"
-                      ? "#39FF14"
-                      : item.status === "Inactive"
-                      ? "grey"
-                      : "red",
-                })),
+                data: [0, 43, 100, 23, 21, 33],
+                label: "Completion Rate",
               },
             ]}
-            height={300}
-          />
+            xAxis={[
+              {
+                scaleType: "point",
+                data: [
+                  "week 1",
+                  "week 2",
+                  "week 3",
+                  "week 4",
+                  "week 5",
+                  "week 6",
+                ],
+              },
+            ]}
+            yAxis={[
+              {
+                id: "completionRate",
+                tickInterval: [0, 25, 50, 75, 100],
+                label: "Completion rate",
+              },
+            ]}
+          ></LineChart>
+        )}
+
+        {view === "status" && (
+          <>
+            {/* Toggle Pie vs Area */}
+            <ToggleButtonGroup
+              value={statusView}
+              exclusive
+              onChange={(_, newView) => {
+                if (newView) {
+                  setStatusView(newView);
+                }
+              }}
+              sx={{ mb: 2 }}
+            >
+              <ToggleButton value="pie">Pie (Latest Month)</ToggleButton>
+              <ToggleButton value="area">Area (Trend)</ToggleButton>
+            </ToggleButtonGroup>
+
+            {statusView === "pie" ? (
+              <PieChart
+                series={[
+                  {
+                    data: Object.entries(
+                      filteredStatus[filteredStatus.length - 1]
+                    )
+                      .filter(([key]) => key !== "Months")
+                      .map(([status, value], i) => ({
+                        id: i,
+                        value: value as number,
+                        label: status,
+                        color:
+                          status === "Active"
+                            ? "#39FF14"
+                            : status === "Inactive"
+                            ? "grey"
+                            : "red",
+                      })),
+                  },
+                ]}
+                height={350}
+              />
+            ) : (
+              <LineChart
+                height={300}
+                series={[
+                  {
+                    data: filteredStatus.map((d) => d.Active),
+                    label: "Active",
+                    area: true,
+                    stack: "total",
+                    showMark: false,
+                  },
+                  {
+                    data: filteredStatus.map((d) => d.Inactive),
+                    label: "Inactive",
+                    area: true,
+                    stack: "total",
+                    showMark: false,
+                  },
+                  {
+                    data: filteredStatus.map((d) => d.Suspended),
+                    label: "Suspended",
+                    area: true,
+                    stack: "total",
+                    showMark: false,
+                  },
+                ]}
+                xAxis={[
+                  {
+                    scaleType: "point",
+                    data: filteredStatus.map((d) => d.Months),
+                  },
+                ]}
+                yAxis={[
+                  {
+                    width: 50,
+                    label: "Number of Merchants",
+                  },
+                ]}
+                sx={{
+                  [`& .${lineElementClasses.root}`]: {
+                    display: "none",
+                  },
+                }}
+                margin={0}
+              >
+                <LineHighlightPlot />
+                <ChartsAxisHighlight x="line" />
+                <ChartsTooltip trigger="axis" />
+                <ChartsLegend />
+              </LineChart>
+            )}
+          </>
         )}
       </Paper>
 
-      {/* Toggle Table */}
+      {/* Table Toggle */}
       <ToggleButtonGroup
         value={showTable ? "table" : "no-table"}
         exclusive
@@ -127,30 +286,26 @@ export default function home() {
             <TableHead>
               <TableRow>
                 {Object.keys(
-                  view === "bar"
-                    ? funnelData[0]
-                    : view === "line"
+                  view === "funnel"
+                    ? filteredFunnel[0]
+                    : view === "sign"
                     ? signPerformance[0]
-                    : merchantStatus[0]
+                    : filteredStatus[0]
                 ).map((key) => (
-                  <TableCell key={key} sx={{ color: "#39FF14" }}>
-                    {key}
-                  </TableCell>
+                  <TableCell key={key}>{key}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {(view === "bar"
-                ? funnelData
-                : view === "line"
+              {(view === "funnel"
+                ? filteredFunnel
+                : view === "sign"
                 ? signPerformance
-                : merchantStatus
+                : filteredStatus
               ).map((row, idx) => (
                 <TableRow key={idx}>
                   {Object.values(row).map((val, i) => (
-                    <TableCell key={i} sx={{ color: "white" }}>
-                      {val}
-                    </TableCell>
+                    <TableCell key={i}>{val}</TableCell>
                   ))}
                 </TableRow>
               ))}
