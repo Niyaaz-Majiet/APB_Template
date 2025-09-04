@@ -67,14 +67,10 @@ export default function Complex() {
   };
 
   // Filter function
-  const filterByRange = <T extends { merchants?: string }>(
-    dataset: T[]
-  ): T[] => {
+  const filterByRange = <T extends { Months?: string }>(dataset: T[]): T[] => {
     if (monthRange === "All") return dataset;
     const selected = ranges[monthRange];
-    return dataset.filter(
-      (row) => row.merchants && selected.includes(row.merchants)
-    );
+    return dataset.filter((row) => row.Months && selected.includes(row.Months));
   };
 
   const filteredFunnel = filterByRange(funnelData);
@@ -130,7 +126,7 @@ export default function Complex() {
         {view === "funnel" && (
           <BarChart
             dataset={filteredFunnel}
-            xAxis={[{ scaleType: "band", dataKey: "merchants" }]}
+            xAxis={[{ scaleType: "band", dataKey: "Months" }]}
             series={[
               { dataKey: "Draft", label: "Draft", color: "grey" },
               {
@@ -202,7 +198,7 @@ export default function Complex() {
                     data: Object.entries(
                       filteredStatus[filteredStatus.length - 1]
                     )
-                      .filter(([key]) => key !== "merchants")
+                      .filter(([key]) => key !== "Months")
                       .map(([status, value], i) => ({
                         id: i,
                         value: value as number,
@@ -247,7 +243,7 @@ export default function Complex() {
                 xAxis={[
                   {
                     scaleType: "point",
-                    data: filteredStatus.map((d) => d.merchants),
+                    data: filteredStatus.map((d) => d.Months),
                   },
                 ]}
                 yAxis={[

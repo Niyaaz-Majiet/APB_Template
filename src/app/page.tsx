@@ -63,13 +63,13 @@ export default function home() {
       <Paper sx={{ p: 3, mb: 3 }}>
         {view === "bar" && (
           <BarChart
-            xAxis={[{ scaleType: "band", dataKey: "merchants" }]}
+            xAxis={[{ scaleType: "band", dataKey: "Months" }]}
             series={[
-              { dataKey: "Draft", label: "Draft" },
-              { dataKey: "Awaiting Signature", label: "Awaiting Signature" },
-              { dataKey: "NPI Review", label: "NPI Review" },
-              { dataKey: "Active", label: "Active" },
-            ]}
+                  { dataKey: "Draft", label: "Draft" },
+                  { dataKey: "Awaiting Signature", label: "Awaiting Signature" },
+                  { dataKey: "NPI Review", label: "NPI Review" },
+                  { dataKey: "Active", label: "Active" },
+                ]}
             dataset={funnelData}
             height={300}
           />
